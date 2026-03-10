@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Treasure Gold Block Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <h1>Treasure Gold Block Trainer</h1>
+
+  <div id="setup">
+
+    <div class="setup-box">
+
+      <h2>Treasure Type</h2>
+
+      <label><input type="radio" name="type" id="all"> All Treasures</label>
+      <label><input type="radio" name="type" id="ranked" checked> Ranked Treasures</label>
+
+    </div>
+
+    <div class="setup-box">
+
+      <h2>Left Rampart GB Positions</h2>
+
+      <label><input type="checkbox" id="LANY" checked> Any (L1-L6)</label>
+
+      <label><input type="checkbox" id="LL"> Left (L1,L2)</label>
+      <label><input type="checkbox" id="LM"> Middle (L3,L4,L5)</label>
+      <label><input type="checkbox" id="LR"> Right (L6)</label>
+
+    </div>
+
+    <div class="setup-box">
+
+      <h2>Right Rampart GB Positions</h2>
+
+      <label><input type="checkbox" id="RANY" checked> Any (R1-R6)</label>
+
+      <label><input type="checkbox" id="RL"> Left (R1,R2)</label>
+      <label><input type="checkbox" id="RM"> Middle (R3,R4,R5)</label>
+      <label><input type="checkbox" id="RR"> Right (R6)</label>
+
+    </div>
+
+    <div class="setup-box">
+
+      <h2>Facing</h2>
+
+      <label><input type="checkbox" id="north" checked> North</label>
+      <label><input type="checkbox" id="south" checked> South</label>
+      <label><input type="checkbox" id="east" checked> East</label>
+      <label><input type="checkbox" id="west" checked> West</label>
+
+    </div>
+
+    <button id="startBtn">Start Training</button>
+
+    <div id="filterWarning"></div>
+
+  </div>
+
+  <div id="card">
+
+    <div id="case"></div>
+
+    <div class="ramparts">
+
+      <div class="rampart">
+
+        <h3>LEFT Rampart</h3>
+
+        <div class="rampart-grid">
+
+          <div class="block" data-block="L1">L1<div class="key">1</div>
+          </div>
+          <div class="empty"></div>
+          <div class="block" data-block="L3">L3<div class="key">3</div>
+          </div>
+          <div class="block" data-block="L4">L4<div class="key">4</div>
+          </div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+          <div class="block" data-block="L5">L5<div class="key">5</div>
+          </div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+          <div class="block" data-block="L6">L6<div class="key">6</div>
+          </div>
+
+          <div class="block" data-block="L2">L2<div class="key">2</div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="rampart">
+
+        <h3>RIGHT Rampart</h3>
+
+        <div class="rampart-grid">
+
+          <div class="block" data-block="R1">R1<div class="key">Q</div>
+          </div>
+          <div class="empty"></div>
+          <div class="block" data-block="R3">R3<div class="key">E</div>
+          </div>
+          <div class="block" data-block="R4">R4<div class="key">R</div>
+          </div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+          <div class="block" data-block="R5">R5<div class="key">T</div>
+          </div>
+
+          <div class="empty"></div>
+          <div class="empty"></div>
+          <div class="block" data-block="R6">R6<div class="key">Y</div>
+          </div>
+
+          <div class="block" data-block="R2">R2<div class="key">W</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div>
+
+      <button id="checkBtn">Check</button>
+      <button id="revealBtn">Reveal</button>
+      <button id="nextBtn">Next</button>
+
+    </div>
+
+    <div id="answer"></div>
+    <div id="stats"></div>
+    <div id="debug"></div>
+
+  </div>
+
+  <script src="trainer.js"></script>
+
+</body>
+
+</html>
