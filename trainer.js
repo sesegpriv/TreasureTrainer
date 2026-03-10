@@ -119,19 +119,19 @@ return "right"
 
 function getSelectedRampartMode(any,left,mid,right){
 
-if(any.checked) return "any"
+if(any.checked) return "all"
 if(left.checked) return "left"
 if(mid.checked) return "middle"
 if(right.checked) return "right"
 
-return "any"
+return "all"
 
 }
 
 function rampartValid(set,mode,withoutSelected){
 
-if(mode==="any"){
-return set.size>0
+if(mode==="all"){
+return withoutSelected?set.size===0:true
 }
 
 let hasTarget=false
@@ -150,7 +150,7 @@ hasTarget=true
 
 }
 
-return withoutSelected?set.size>0:hasTarget
+return withoutSelected?true:hasTarget
 
 }
 
@@ -268,8 +268,8 @@ RANY.checked=true
 RWITHOUT.checked=false
 }
 
-LWITHOUT.disabled=LANY.checked||forceLeftAny
-RWITHOUT.disabled=RANY.checked||forceRightAny
+LWITHOUT.disabled=forceLeftAny
+RWITHOUT.disabled=forceRightAny
 
 if(LWITHOUT.disabled){
 LWITHOUT.checked=false
@@ -297,7 +297,7 @@ streak=0
 setup.style.display="none"
 card.style.display="block"
 checkBtn.style.display=sessionMode==="flashcard"?"none":"inline-block"
-endBtn.style.display=sessionMode==="flashcard"||sessionMode==="infinite"?"inline-block":"none"
+endBtn.style.display="inline-block"
 nextBtn.disabled=sessionMode!=="flashcard"
 checkBtn.disabled=false
 answer.innerText=""
