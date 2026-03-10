@@ -24,6 +24,25 @@ body {
     margin-bottom: 20px;
 }
 
+.setup-heading {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.setup-heading h2 {
+    margin: 0;
+}
+
+.without-toggle {
+    position: absolute;
+    right: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 button {
     background: #3a7cff;
     border: none;
@@ -53,6 +72,12 @@ button:disabled {
     margin-top: 40px;
     width: 1000px;
     border-radius: 12px;
+}
+
+#case {
+    font-size: 32px;
+    line-height: 1.35;
+    font-weight: 700;
 }
 
 .ramparts {
@@ -122,4 +147,25 @@ button:disabled {
     font-size: 14px;
     font-family: monospace;
     display: none;
+}
+
+#answer {
+    margin-top: 16px;
+    min-height: 40px;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+#stats {
+    margin-top: 10px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.correct-text {
+    color: #38d26b;
+}
+
+.wrong-text {
+    color: #e74c3c;
 }
