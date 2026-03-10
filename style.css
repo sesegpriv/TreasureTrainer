@@ -93,12 +93,242 @@ button:disabled {
     font-weight: 700;
 }
 
+#chunkmapWrap {
+    display: none;
+    margin: 20px auto 0;
+    width: min(100%, 900px);
+    --chunk-cell-size: 54px;
+    --chunk-gap: 3px;
+    --z-axis-width: 54px;
+}
+
+#chunkmapFrame {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#chunkmapXAxisWrap {
+    position: relative;
+    padding-top: 28px;
+}
+
+#chunkmapXAxis {
+    display: grid;
+    gap: var(--chunk-gap);
+    margin-left: calc(var(--z-axis-width) + 6px);
+}
+
+#chunkmapBody {
+    display: flex;
+    gap: 6px;
+}
+
+#chunkmapZAxisWrap {
+    position: relative;
+    width: var(--z-axis-width);
+    flex: 0 0 var(--z-axis-width);
+}
+
+#chunkmapZAxis {
+    display: grid;
+    gap: var(--chunk-gap);
+}
+
+#chunkmap {
+    display: grid;
+    gap: var(--chunk-gap);
+    max-height: 60vh;
+    overflow: auto;
+    padding: 4px;
+    background: #171717;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1 1 auto;
+}
+
+.axis-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d0d0d0;
+    font-size: 13px;
+    font-weight: 800;
+    background: #121212;
+    border: 1px solid #303030;
+    border-radius: 4px;
+}
+
+.axis-title-x {
+    position: absolute;
+    top: 0;
+    left: calc(var(--z-axis-width) + 6px + 50% - (var(--chunk-cell-size) / 2) - (var(--chunk-gap) / 2));
+    transform: translateX(-50%);
+    width: 32px;
+    min-height: 24px;
+}
+
+.axis-title-z {
+    position: absolute;
+    top: 50%;
+    left: -36px;
+    transform: translateY(-50%);
+    width: 32px;
+    min-height: 24px;
+}
+
+.axis-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 12px;
+    font-weight: 700;
+    background: #1b1b1b;
+    border: 1px solid #303030;
+    border-radius: 4px;
+}
+
+.axis-x-cell {
+    min-height: 24px;
+    min-width: var(--chunk-cell-size);
+}
+
+.axis-z-cell {
+    min-height: var(--chunk-cell-size);
+    min-width: var(--z-axis-width);
+}
+
+.chunk-cell {
+    background: #252525;
+    border: 1px solid #353535;
+    border-radius: 4px;
+    min-height: var(--chunk-cell-size);
+    min-width: var(--chunk-cell-size);
+    padding: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.chunk-cell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 25% 30%, rgba(255,255,255,0.12), transparent 42%),
+        radial-gradient(circle at 75% 70%, rgba(0,0,0,0.2), transparent 46%);
+}
+
+.chunk-cell.biome-netherrack {
+    background: #7a1f1f;
+    border-color: #992929;
+}
+
+.chunk-cell.biome-wastes {
+    background: #5b3127;
+    border-color: #744236;
+}
+
+.chunk-cell.biome-crimson {
+    background: #6a1f28;
+    border-color: #8b2a35;
+}
+
+.chunk-cell.biome-warped {
+    background: #154b52;
+    border-color: #216a72;
+}
+
+.chunk-cell.biome-basalt {
+    background: #2b2a31;
+    border-color: #3a3943;
+}
+
+.chunk-cell.biome-soul {
+    background: #3c4b63;
+    border-color: #526784;
+}
+
+.chunk-cell.biome-lava {
+    background: #8b3a16;
+    border-color: #b65220;
+}
+
+.chunk-cell.bastion-footprint {
+    background: #050505;
+    border-color: #101010;
+}
+
+.chunk-cell.player-chunk {
+    border-color: #3a7cff;
+    background: #1f2840;
+}
+
+.chunk-cell.player-chunk.bastion-footprint {
+    background: linear-gradient(135deg, #1f2840 0 50%, #050505 50% 100%);
+}
+
+.chunk-cell.origin-chunk {
+    border-color: #ffd700;
+    background: #3a3214;
+}
+
+.chunk-cell.origin-chunk.bastion-footprint {
+    background: linear-gradient(135deg, #3a3214 0 50%, #050505 50% 100%);
+}
+
+.chunk-cell.dual-chunk {
+    background: linear-gradient(135deg, #1f2840 0 50%, #3a3214 50% 100%);
+}
+
+.chunk-label {
+    font-size: 10px;
+    color: #bbb;
+    line-height: 1.1;
+}
+
+.chunk-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    gap: 2px;
+}
+
+.chunk-badge {
+    font-weight: 700;
+    color: #dbe7ff;
+    line-height: 1;
+}
+
+.origin-badge {
+    color: #ffd700;
+}
+
+.chunk-coords,
+.chunk-facing {
+    font-size: 10px;
+    line-height: 1.1;
+}
+
+#chunkmapMeta {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #bbb;
+}
+
 .ramparts {
     display: flex;
     justify-content: center;
-    gap: 150px;
+    gap: clamp(24px, 4vw, 40px);
     margin-top: 20px;
     align-items: flex-start;
+    width: 100%;
 }
 
 .rampart {
@@ -106,6 +336,8 @@ button:disabled {
     padding: 15px;
     border: 6px solid #3c3c3c;
     border-radius: 6px;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .rampart-grid {
@@ -211,6 +443,10 @@ button:disabled {
         font-size: 24px;
     }
 
+    #chunkmapWrap {
+        width: 100%;
+    }
+
     .ramparts {
         flex-direction: column;
         align-items: center;
@@ -264,6 +500,20 @@ button:disabled {
 
     #case {
         font-size: 20px;
+    }
+
+    #chunkmapHeader {
+        font-size: 16px;
+    }
+
+    .chunk-cell {
+        min-height: 48px;
+        min-width: 48px;
+    }
+
+    #chunkmapMeta {
+        font-size: 12px;
+        line-height: 1.4;
     }
 
     #answer {

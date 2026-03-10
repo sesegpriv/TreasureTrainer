@@ -75,10 +75,11 @@
     </div>
 
     <div id="startOptions">
-      <button class="start-btn" data-session-mode="count" data-session-size="10">10 Bastions</button>
+      <button class="start-btn" data-session-mode="count" data-session-size="10">10 Bastions Mode</button>
       <button class="start-btn" data-session-mode="timed" data-session-seconds="60">60 Second Mode</button>
       <button class="start-btn" data-session-mode="flashcard">Flashcard Mode</button>
-      <button class="start-btn" data-session-mode="infinite">Infinite</button>
+      <button class="start-btn" data-session-mode="chunkmap">Chunkmap Mode</button>
+      <button class="start-btn" data-session-mode="infinite">Infinite Mode</button>
     </div>
 
     <div id="filterWarning"></div>
@@ -88,6 +89,22 @@
   <div id="card">
 
     <div id="case"></div>
+    <div id="chunkmapWrap">
+      <div id="chunkmapFrame">
+        <div id="chunkmapXAxisWrap">
+          <div class="axis-title axis-title-x">X</div>
+          <div id="chunkmapXAxis"></div>
+        </div>
+        <div id="chunkmapBody">
+          <div id="chunkmapZAxisWrap">
+            <div class="axis-title axis-title-z">Z</div>
+            <div id="chunkmapZAxis"></div>
+          </div>
+          <div id="chunkmap"></div>
+        </div>
+      </div>
+      <div id="chunkmapMeta"></div>
+    </div>
 
     <div class="ramparts">
 

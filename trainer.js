@@ -23,10 +23,16 @@ let debugVisible=false
 let sessionCompleteTimeout=null
 let timerInterval=null
 let timedModeDeadline=0
+let currentDisplay=null
 
 const caseBox=document.getElementById("case")
 const setup=document.getElementById("setup")
 const card=document.getElementById("card")
+const chunkmapWrap=document.getElementById("chunkmapWrap")
+const chunkmapXAxis=document.getElementById("chunkmapXAxis")
+const chunkmapZAxis=document.getElementById("chunkmapZAxis")
+const chunkmap=document.getElementById("chunkmap")
+const chunkmapMeta=document.getElementById("chunkmapMeta")
 
 const answer=document.getElementById("answer")
 const stats=document.getElementById("stats")
@@ -57,6 +63,7 @@ const south=document.getElementById("south")
 const east=document.getElementById("east")
 const west=document.getElementById("west")
 
+const all=document.getElementById("all")
 const ranked=document.getElementById("ranked")
 const scoreBoth=document.getElementById("scoreBoth")
 const scoreLeft=document.getElementById("scoreLeft")
@@ -114,6 +121,303 @@ if(n<=2) return "left"
 if(n<=5) return "middle"
 
 return "right"
+
+}
+
+function getChunkRange(){
+
+if(ranked.checked){
+return {min:-14,max:14}
+}
+
+return {min:-27,max:22}
+
+}
+
+function randomInt(min,max){
+
+return Math.floor(Math.random()*(max-min+1))+min
+
+}
+
+function hashChunk(x,z){
+
+let n=(x*374761393+z*668265263)>>>0
+n=(n^(n>>13))>>>0
+n=Math.imul(n,1274126177)>>>0
+n=(n^(n>>16))>>>0
+
+return n/4294967295
+
+}
+
+function getChunkBiomeClass(x,z){
+
+let coarse=hashChunk(Math.floor(x/2),Math.floor(z/2))
+let medium=hashChunk(x,z)
+let detail=hashChunk(x*3+11,z*3-7)
+let noise=coarse*0.55+medium*0.3+detail*0.15
+
+if(noise<0.12) return "biome-lava"
+if(noise<0.2) return "biome-basalt"
+if(noise<0.5) return "biome-netherrack"
+if(noise<0.7) return "biome-wastes"
+if(noise<0.82) return "biome-soul"
+if(noise<0.92) return "biome-crimson"
+
+return "biome-warped"
+
+}
+
+function getChunkmapFootprint(pos,facing){
+
+switch(facing){
+
+case "NORTH":
+return new Set([
+(pos.x)+":"+(pos.z-1),
+(pos.x-1)+":"+(pos.z-1),
+(pos.x)+":"+(pos.z+1)
+])
+
+case "SOUTH":
+return new Set([
+(pos.x)+":"+(pos.z+1),
+(pos.x+1)+":"+(pos.z+1),
+(pos.x)+":"+(pos.z-1)
+])
+
+case "EAST":
+return new Set([
+(pos.x+1)+":"+(pos.z),
+(pos.x+1)+":"+(pos.z-1),
+(pos.x-1)+":"+(pos.z)
+])
+
+case "WEST":
+return new Set([
+(pos.x-1)+":"+(pos.z),
+(pos.x-1)+":"+(pos.z+1),
+(pos.x+1)+":"+(pos.z)
+])
+
+default:
+return new Set()
+
+}
+
+}
+
+function addPathChunks(footprint,pos,originX,originZ){
+
+let x=pos.x
+let z=pos.z
+
+while(x!==originX){
+x+=originX>x?1:-1
+footprint.add(x+":"+z)
+}
+
+while(z!==originZ){
+z+=originZ>z?1:-1
+footprint.add(x+":"+z)
+}
+
+}
+
+function fillFootprintRectangle(footprint){
+
+if(footprint.size===0){
+return
+}
+
+let points=[...footprint].map(key=>{
+let parts=key.split(":").map(Number)
+return {x:parts[0],z:parts[1]}
+})
+
+let minX=Math.min(...points.map(point=>point.x))
+let maxX=Math.max(...points.map(point=>point.x))
+let minZ=Math.min(...points.map(point=>point.z))
+let maxZ=Math.max(...points.map(point=>point.z))
+
+for(let z=minZ;z<=maxZ;z++){
+for(let x=minX;x<=maxX;x++){
+footprint.add(x+":"+z)
+}
+}
+
+}
+
+function getFootprintBounds(footprint){
+
+let points=[...footprint].map(key=>{
+let parts=key.split(":").map(Number)
+return {x:parts[0],z:parts[1]}
+})
+
+return {
+minX:Math.min(...points.map(point=>point.x)),
+maxX:Math.max(...points.map(point=>point.x)),
+minZ:Math.min(...points.map(point=>point.z)),
+maxZ:Math.max(...points.map(point=>point.z))
+}
+
+}
+
+function buildFilledFootprint(pos,originX,originZ,facing){
+
+let footprint=getChunkmapFootprint(pos,facing)
+addPathChunks(footprint,pos,originX,originZ)
+fillFootprintRectangle(footprint)
+
+return footprint
+
+}
+
+function buildDisplayCase(bastion){
+
+let pos=playerCoords(bastion.x,bastion.z,bastion.f)
+
+if(sessionMode!=="chunkmap"){
+return {
+originX:bastion.x,
+originZ:bastion.z,
+pos:pos
+}
+}
+
+let range=getChunkRange()
+
+let shiftXMin=range.min-Math.min(bastion.x,pos.x)
+let shiftXMax=range.max-Math.max(bastion.x,pos.x)
+let shiftZMin=range.min-Math.min(bastion.z,pos.z)
+let shiftZMax=range.max-Math.max(bastion.z,pos.z)
+
+let shiftX=randomInt(shiftXMin,shiftXMax)
+let shiftZ=randomInt(shiftZMin,shiftZMax)
+
+let originX=bastion.x+shiftX
+let originZ=bastion.z+shiftZ
+let playerX=pos.x+shiftX
+let playerZ=pos.z+shiftZ
+
+let windowSize=9
+let maxOffset=windowSize-1
+let footprint=buildFilledFootprint({x:playerX,z:playerZ},originX,originZ,bastion.f)
+let bounds=getFootprintBounds(footprint)
+
+let minViewportX=Math.max(range.min,bounds.maxX-maxOffset)
+let maxViewportX=Math.min(bounds.minX,range.max-windowSize+1)
+let minViewportZ=Math.max(range.min,bounds.maxZ-maxOffset)
+let maxViewportZ=Math.min(bounds.minZ,range.max-windowSize+1)
+
+let viewportMinX=randomInt(minViewportX,maxViewportX)
+let viewportMinZ=randomInt(minViewportZ,maxViewportZ)
+
+return {
+originX:originX,
+originZ:originZ,
+pos:{
+x:playerX,
+z:playerZ
+},
+footprint:footprint,
+view:{
+minX:viewportMinX,
+maxX:viewportMinX+windowSize-1,
+minZ:viewportMinZ,
+maxZ:viewportMinZ+windowSize-1
+}
+}
+
+}
+
+function renderChunkmap(displayCase){
+
+if(sessionMode!=="chunkmap"){
+chunkmapWrap.style.display="none"
+chunkmapXAxis.innerHTML=""
+chunkmapZAxis.innerHTML=""
+chunkmap.innerHTML=""
+chunkmapMeta.innerText=""
+return
+}
+
+chunkmapWrap.style.display="block"
+
+if(!displayCase){
+chunkmapXAxis.innerHTML=""
+chunkmapZAxis.innerHTML=""
+chunkmap.innerHTML=""
+chunkmapMeta.innerText=""
+return
+}
+
+let minX=displayCase.view.minX
+let maxX=displayCase.view.maxX
+let minZ=displayCase.view.minZ
+let maxZ=displayCase.view.maxZ
+let width=maxX-minX+1
+let height=maxZ-minZ+1
+let footprint=displayCase.footprint
+chunkmapXAxis.style.gridTemplateColumns="repeat("+width+", minmax(var(--chunk-cell-size), 1fr))"
+chunkmapZAxis.style.gridTemplateRows="repeat("+height+", var(--chunk-cell-size))"
+chunkmap.style.gridTemplateColumns="repeat("+width+", minmax(var(--chunk-cell-size), 1fr))"
+
+let cells=[]
+let xAxis=[]
+let zAxis=[]
+
+for(let x=minX;x<=maxX;x++){
+xAxis.push('<div class="axis-cell axis-x-cell">'+x+'</div>')
+}
+
+for(let z=minZ;z<=maxZ;z++){
+zAxis.push('<div class="axis-cell axis-z-cell">'+z+'</div>')
+}
+
+for(let z=minZ;z<=maxZ;z++){
+for(let x=minX;x<=maxX;x++){
+
+let isPlayerChunk=x===displayCase.pos.x&&z===displayCase.pos.z
+let isOriginChunk=x===displayCase.originX&&z===displayCase.originZ
+let chunkClass="chunk-cell "+getChunkBiomeClass(x,z)
+let isFootprintChunk=footprint.has(x+":"+z)
+
+if(isFootprintChunk){
+chunkClass+=" bastion-footprint"
+}
+
+if(isPlayerChunk&&isOriginChunk){
+chunkClass+=" player-chunk origin-chunk dual-chunk"
+}
+else if(isPlayerChunk){
+chunkClass+=" player-chunk"
+}
+else if(isOriginChunk){
+chunkClass+=" origin-chunk"
+}
+
+cells.push(
+'<div class="'+chunkClass+'">'+
+'<div class="chunk-label">'+x+', '+z+'</div>'+
+'<div class="chunk-content">'+
+(isPlayerChunk?'<div class="chunk-badge">P</div><div class="chunk-coords">PLAYER</div>':'')+
+(isOriginChunk?'<div class="chunk-badge origin-badge">B</div><div class="chunk-facing">ORIGIN</div>':'')+
+'</div>'+
+'</div>'
+)
+
+}
+}
+
+chunkmapXAxis.innerHTML=xAxis.join("")
+chunkmapZAxis.innerHTML=zAxis.join("")
+chunkmap.innerHTML=cells.join("")
+chunkmapMeta.innerText=
+"Player chunk: "+displayCase.pos.x+", "+displayCase.pos.z+
+" | Bastion origin: "+displayCase.originX+", "+displayCase.originZ
 
 }
 
@@ -301,6 +605,7 @@ endBtn.style.display="inline-block"
 nextBtn.disabled=sessionMode!=="flashcard"
 checkBtn.disabled=false
 answer.innerText=""
+renderChunkmap(null)
 updateStats()
 
 if(sessionMode==="timed"){
@@ -385,25 +690,39 @@ revealBtn.innerText="Reveal"
 resetBlocks()
 
 current=filtered[Math.floor(Math.random()*filtered.length)]
+currentDisplay=buildDisplayCase(current)
 
-let pos=playerCoords(current.x,current.z,current.f)
-let sessionLabel=sessionSize===Infinity?"Infinite":sessionSize
+let sessionLabel="in "+sessionSize
 
 if(sessionMode==="timed"){
-sessionLabel=timedModeSeconds+" Seconds"
+sessionLabel="in "+timedModeSeconds+"s"
 }
 
 if(sessionMode==="flashcard"){
-sessionLabel="Flashcards"
+sessionLabel="(Flashcards mode)"
 }
 
-caseBox.innerHTML=
-"Bastion "+sessionIndex+" / "+sessionLabel+
+if(sessionMode==="chunkmap"){
+sessionLabel="(Chunkmap mode)"
+}
+
+if(sessionMode==="infinite"){
+sessionLabel="(Infinite mode)"
+}
+
+let caseText="Bastion "+sessionIndex+" "+sessionLabel
+
+if(sessionMode!=="chunkmap"){
+caseText+=
 "<br>Facing: "+getDirectionText(current.f)+
-" | Standing in: "+pos.x+", "+pos.z
+" | Standing in: "+currentDisplay.pos.x+", "+currentDisplay.pos.z
+}
+
+caseBox.innerHTML=caseText
 
 answer.innerText=""
 
+renderChunkmap(currentDisplay)
 updateDebug()
 updateStats()
 
@@ -630,7 +949,7 @@ if(mode==="timed"){
 timedModeSeconds=parseInt(btn.dataset.sessionSeconds,10)
 }
 
-if(mode==="flashcard"||mode==="infinite"||mode==="timed"){
+if(mode==="flashcard"||mode==="infinite"||mode==="timed"||mode==="chunkmap"){
 size=Infinity
 }
 
